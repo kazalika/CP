@@ -1,10 +1,17 @@
+/*******************************************
+
+ Structure for finding maxflow by @Kzalika
+ Dinic's Algorithm with scaling O(VE logC)
+
+*******************************************/
+
 struct Edge {
   int from, to, f, c, link;
 };
 
 struct Flow {
   int size, used_now, cur_flow;
-  int S, T;
+  int S, T;   // S - source, T - runoff
   vector<int> dist, used;
   vector<bool> del;
   vector<vector<Edge>> g;
@@ -28,7 +35,7 @@ struct Flow {
     used.resize(size);
     del.resize(size);
   }
-  void bfs(int limit) {
+  void bfs(int limit) {                 // finding the shortest ways from S
     fill(dist.begin(), dist.end(), size);
     dist[S] = 0;
     vector<int> q;
@@ -43,7 +50,7 @@ struct Flow {
       }
     }
   }
-  int dfs(int v, int fl, int limit) {
+  int dfs(int v, int fl, int limit) { // finding flow in residual network
     if (v == T)
       return fl;
     used[v] = used_now;
@@ -61,7 +68,7 @@ struct Flow {
     return 0;
   }
 
-  int Dinic(int limit) {
+  int Dinic(int limit) {         // Dinic with limit
     bfs(limit);
     if (dist[T] == size)
       return 0;
@@ -73,7 +80,7 @@ struct Flow {
     }
     return rt_flow;
   }
-  void Dinic() {
+  void Dinic() {                 // Dinic making full flow
     for (int i = 30; i >= 0; --i) {
       int d = Dinic(1 << i);
       while (d) {
@@ -83,19 +90,19 @@ struct Flow {
     }
   }
 
-  void ae(int a, int b, int c) {
+  void ae(int a, int b, int c) {  // add a->b with capacity = c
     g[a].push_back({a, b, 0, c, (int)g[b].size()});
     g[b].push_back({b, a, 0, 0, (int)g[a].size() - 1});
   }
-  void ae2(int a, int b, int c) {
+  void ae2(int a, int b, int c) { // add a<->b with capacity = c 
     g[a].push_back({a, b, 0, c, (int)g[b].size()});
     g[b].push_back({b, a, -c, 0, (int)g[a].size() - 1});
   }
-  void add_edge(int a, int b, int c, int ts = 0) {    // add edge { a->b with limit = c }    if S->b: a = -1; if a->T: b = -1;
-    if (a == -1) a = S;
-    if (b == -1) b = T;
-    if (ts) ae2(a, b, c);
-    else ae(a, b, c);
+  void add_edge(int a, int b, int c, int ts = 0) {    // add edge { a-b with capacity = c }
+    if (a == -1) a = S;     // if S-b
+    if (b == -1) b = T;     // if a-T
+    if (ts) ae2(a, b, c);   // if a<->b
+    else ae(a, b, c);       // if a->b
   }
 
 };
