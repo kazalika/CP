@@ -9,7 +9,7 @@ const int inf = 1e9 + 9;
 
 /*******************************************
  Structure for finding maxflow by @Kzalika
- Dinic's Algorithm with scaling O(VE logC)
+        Dinic's Algorithm O(EV^2)
 *******************************************/
 
 struct Edge {
