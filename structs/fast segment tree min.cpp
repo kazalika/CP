@@ -34,7 +34,7 @@ struct segment_tree {
     T ret = inf;
     for (int f = l + size, s = r + size; f < s; f >>= 1, s >>= 1) {
       if (f & 1)
-        ret = min(ret, t[f]), f--;
+        ret = min(ret, t[f]), f++;
       if (s & 1)
         s--, ret = min(ret, t[s]);
     }
