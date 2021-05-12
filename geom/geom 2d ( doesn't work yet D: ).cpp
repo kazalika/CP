@@ -1,7 +1,7 @@
 /*
  *   []  Template for Geometry []
  *   author       : @kazalika
- *   compilator   : GNU C++ 14/17
+ *   compiler     : GNU C++ 14/17
  *
  *   read comments at the end of the file
  */
@@ -14,17 +14,20 @@ using namespace std;
 typedef long double db;       // or "double"
 typedef long long ll;
 
+
+const db undef = -7212; // random value for "not_found" answers
+const db inf_s = -7812; // random value for "inf_cnt" answers
+const db eps   = 1e-8;        // epsilon
+
 #define vc vector             // sorry for that
-
-const db undef = -7182466412; // random value for "not_found" answers
-const db inf_s = -7571892812; // random value for "inf_cnt" answers
-const db eps   = 1e-7;        // epsilon
+#define undpt pt(undef, undef-228)
+#define infpt pt(inf_s, inf_s-228)
 
 template <typename T>
-T sq(T a) {return a * a;}
+T sq(T a) { return a * a; }
 
 template <typename T>
-bool eq(T a, T b) {return abs(a - b) < eps;}
+bool eq(T a, T b) { return abs(a - b) < eps; }
 
 // POINT
 struct pt {     // a point or a vector
@@ -43,6 +46,7 @@ ostream& operator << (ostream& out, pt &p) { return out << p.x << ' ' << p.y; }
 
 // OPS
 bool operator == (const pt &a, const pt &b) { return eq(a.x, b.x) && eq(a.y, b.y); }                  // ==
+bool operator != (const pt &a, const pt &b) { return !(a == b); }                                     // !=
 db operator* (const pt& a, const pt& b) { return a.x * b.x + a.y * b.y; }                             // scalar product
 db operator% (const pt& a, const pt& b) { return a.x * b.y - b.x * a.y; }                             // cross product
 pt operator+ (const pt& a, const pt& b) { return pt(a.x + b.x, a.y + b.y); }                          // +
@@ -55,7 +59,8 @@ pt normalize(pt p) { return pt(p.x / len(p), p.y / len(p)); }                   
 pt mult(pt p, db x) { return pt(p.x * x, p.y * x); }                                                  // len *= x
 pt set_len(pt p, db x) { p = normalize(p); return mult(p, x); }                                       // len := x
 db dist_pp(pt a, pt b) { return sqrt(sq(a.x - b.x) + sq(a.y - b.y)); }                                // dist 2 pts
-bool bel_seg(pt a, pt b, pt p) { return eq((a-b) % (p-a), db(0)) && eq((b-a) % (p-b), db(0));}        // does pt P belongs a segment AB
+bool bel_ray(pt a, pt b, pt p) { return eq((b-a) % (p-a), db(0)) && (b-a) * (p-a) > 0 || p == a; }
+bool bel_seg(pt a, pt b, pt p) { return bel_ray(a, b, p) && bel_ray(b, a, p); }
 //
 
 
@@ -63,13 +68,6 @@ bool bel_seg(pt a, pt b, pt p) { return eq((a-b) % (p-a), db(0)) && eq((b-a) % (
 struct line {
   db a, b, c;
   // ll a, b, c;
-  line() : a(0), b(0), c(0) {}
-  line(pt p1, pt p2) {
-    a = p2.y - p1.y;
-    b = p1.x - p2.x;
-    c = - (a * p1.x + b * p1.y);
-  }
-  line(db a, db b, db c) : a(a), b(b), c(c) {}
   void fit() {
     db fval = 1;
     if (a != 0) fval = a;
@@ -77,6 +75,14 @@ struct line {
     else if (c != 0) fval = c;
     a /= fval, b /= fval, c /= fval;
   }
+  line() : a(0), b(0), c(0) {}
+  line(pt p1, pt p2) {
+    a = p2.y - p1.y;
+    b = p1.x - p2.x;
+    c = - (a * p1.x + b * p1.y);
+    fit();
+  }
+  line(db a, db b, db c) : a(a), b(b), c(c) {}
 };
 //
 
@@ -86,33 +92,35 @@ ostream& operator << (ostream& out, line &l) { return out << l.a << ' ' << l.b <
 //
 
 // OPS
-bool operator || (line a, line b) { a.fit(), b.fit(); return a.a == b.a && a.b == b.b; }
-bool operator == (line a, line b) { a.fit(), b.fit(); return a.a == b.a && a.b == b.b && a.c == b.c; }
+bool operator || (line a, line b) { a.fit(), b.fit(); return eq(a.a, b.a) && eq(a.b, b.b); }
+bool operator == (line a, line b) { a.fit(), b.fit(); return eq(a.a, b.a) && eq(a.b, b.b) && eq(a.c, b.c); }
 //
 
 pt normal(line &l) { return pt(l.a, l.b); }                                                           // normal vector of line
 pt dir(line &l) { return pt(-l.b, l.a); }                                                             // direction vector of line
 db dist_lp(line &l, pt &p) { return abs(l.a * p.x + l.b * p.y + l.c) / sqrt(sq(l.a) + sq(l.b)); }     // dist line & pt
-bool bel(line &l, pt &p) { return eq(db(0), l.a * p.x + l.b * p.y + l.c); }                           // does pt belongs a line?
+bool bel(line &l, pt &p) { return eq(db(0), l.a * p.x + l.b * p.y + l.c); }                           // does pt belong a line?
 
 /*
  *   !!! "itr" means "intersection" !!!
  */
 
 // INTERSECTIONS
-bool hlf(pt a, pt b, pt c, pt d) {                                                                    // help function for itr_ss
-  db k1 = (c - a) % (b - a), k2 = (d - a) % (b - a);
-  return (min(k1, k2) <= 0 && max(k1, k2) >= 0);
-}
-bool itr_ss(pt a, pt b, pt c, pt d) {                                                                 // intersection of 2 segments
-  return hlf(a, b, c, d) && hlf(b, a, c, d) && hlf(c, d, a, b) && hlf(d, c, a, b);
-}
 pt itr_ll(line &l1, line &l2) {                                                                       // intersection of 2 lines
-  if (l1 == l2) return pt(inf_s, inf_s);
-  if (l1 || l2) return pt(undef, undef);
+  if (l1 == l2) return infpt;
+  if (l1 || l2) return undpt;
   db x = -(l1.c * l2.b - l2.c * l1.b) / (l1.a * l2.b - l2.a * l1.b);
   db y = -(l1.a * l2.c - l2.a * l1.c) / (l1.a * l2.b - l2.a * l1.b);
   return pt(x, y);
+}
+bool cross_ss(pt a, pt b, pt c, pt d) {
+  if (bel_seg(a, b, c) || bel_seg(a, b, d) || bel_seg(c, d, a) || bel_seg(c, d, b))
+    return true;
+  line l1(a, b), l2(c, d);
+  if (l1 || l2)
+    return false;
+  pt cr = itr_ll(l1, l2);
+  return bel_seg(a, b, cr) && bel_seg(c, d, cr);
 }
 vc<pt> itr_cl(pt o, db r, line l) {                                                                   // intersection of circle & line
   pt nv = set_len(normal(l), dist_lp(l, o));
@@ -126,9 +134,9 @@ vc<pt> itr_cl(pt o, db r, line l) {                                             
   return {pr + u, pr - u};
 }
 vc<pt> itr_cc(pt o1, db r1, pt o2, db r2) {                                                           // intersection of 2 circles
-  if (o1 == o2 && eq(r1, r2)) return {pt(inf_s, inf_s)}; // the same circles
+  if (o1 == o2 && eq(r1, r2)) return {infpt}; // the same circles
   line l = { 2 * (o2.x - o1.x), 2 * (o2.y - o1.y), sq(o1.x)+sq(o1.y)+sq(r2)-sq(o2.x)-sq(o2.y)-sq(r1) };
-  return itr_cl(o2, r2, l); // tranform circle into circle & itr_cl
+  return itr_cl(o2, r2, l); // tranform circle into line & itr_cl
 }
 //
 
@@ -153,7 +161,7 @@ bool inside_polpt(vc<pt> v, pt p) {                                             
   pt p2(p.x + 1e9, p.y); // ray  (maybe not 1e9 but 1e15 ? idk)
   for (int i = 0; i < (int) v.size() - 1; ++i) {
     if (eq(v[i].y, v[i + 1].y) || max(v[i].y, v[i + 1].y) == p.y) continue; // exceptions
-    if (itr_ss(p, p2, v[i], v[i + 1])) cnt ^= 1;
+    if (cross_ss(p, p2, v[i], v[i + 1])) cnt ^= 1;
   }
   return cnt;
 }
@@ -199,6 +207,57 @@ db area_p(vc<pt> v) {                                                           
 }
 //
 
+// DISTS
+db dist_ps(pt &p, pt &a, pt &b) {
+  if ((p - a) * (b - a) > 0 && (p - b) * (a - b) > 0) {
+    assert(a != b);
+    return abs((a - p) % (b - p)) / dist_pp(a, b);
+  }
+  return min(dist_pp(p, a), dist_pp(p, b));
+}
+db dist_ss(pt &a, pt &b, pt &c, pt &d) {
+  if (cross_ss(a, b, c, d))
+    return 0;
+  return min({ dist_ps(a, c, d), dist_ps(b, c, d), dist_ps(c, a, b), dist_ps(d, a, b) });
+}
+db dist_pl(pt p, pt a, pt b) {
+  assert(a != b);
+  return abs((a - p) % (b - p)) / dist_pp(a, b);
+}
+db dist_pr(pt p, pt a, pt b) {
+  if ((b - a) * (p - a) < 0)
+    return dist_pp(p, a);
+  return dist_pl(p, a, b);
+}
+db dist_ll(pt a, pt b, pt c, pt d) {
+  line l1(a, b), l2(c, d);
+  if (l1 || l2)
+    return dist_pl(a, c, d);
+  return 0;
+}
+db dist_rl(pt a, pt b, pt c, pt d) {
+  line l1(a, b), l2(c, d);
+  if (l1 || l2) return dist_pl(a, c, d);
+  pt cr = itr_ll(l1, l2);
+  if (bel_ray(a, b, cr))
+    return 0;
+  return dist_pl(a, c, d);
+}
+db dist_sl(pt a, pt b, pt c, pt d) {
+  return max(dist_rl(a, b, c, d), dist_rl(b, a, c, d));
+}
+db dist_rr(pt a, pt b, pt c, pt d) {
+  line l1(a, b), l2(c, d);
+  if (l1 || l2) return min(dist_pr(a, c, d), dist_pr(c, a, b));
+  pt cr = itr_ll(l1, l2);
+  if (bel_ray(a, b, cr) && bel_ray(c, d, cr))
+    return 0;
+  return min(dist_pr(a, c, d), dist_pr(c, a, b));
+}
+db dist_sr(pt a, pt b, pt c, pt d) {
+  return max(dist_rr(a, b, c, d), dist_rr(b, a, c, d));
+}
+//
 
 /*
  * Теперь немного комментариев по этому коду
