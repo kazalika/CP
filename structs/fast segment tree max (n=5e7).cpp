@@ -6,7 +6,7 @@ typedef long long ll;
 /**************************************************
       Segment Tree on maximum by Kazalika
                  O(log) query
-             1.5-3.6s (n = 2e7, int)
+             1.5-1.7s (n = 2e7, int)
              9.2-9.6s (n = 5e7, int)
 **************************************************/
 
