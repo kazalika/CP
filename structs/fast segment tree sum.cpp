@@ -12,7 +12,7 @@ struct segment_tree {
     while (size < v.size())
       size <<= 1;
     t.resize(size << 1);
-    for (int i = 0; i < size; ++i)
+    for (int i = 0; i < v.size(); ++i)
       t[size + i] = v[i];
     for (int i = size - 1; i > 0; --i)
       t[i] = t[i << 1] + t[i << 1 | 1];
