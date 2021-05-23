@@ -22,7 +22,7 @@ struct segment_tree {
     for (int i = 0; i < size; ++i)
       t[size + i] = v[i];
     for (int i = size - 1; i > 0; --i)
-      t[i] = min(t[i << 1], t[t << 1 | 1]);
+      t[i] = min(t[i << 1], t[i << 1 | 1]);
   }
   void upd(int i, T vl) {
     i += size - 1;
