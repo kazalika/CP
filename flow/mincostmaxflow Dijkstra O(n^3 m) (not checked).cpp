@@ -78,9 +78,9 @@ struct mcmf {
       }
       flow += af;
     }
-    cur_flow = flow, cur_cost = cost;
+    cur_flow += flow, cur_cost += cost;
     nupd = false;
-    return {flow, cost};
+    return {cur_flow, cur_cost};
   }
 
 };
