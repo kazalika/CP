@@ -33,11 +33,11 @@ struct mcmf {
 
   void ae1(int fr, int to, int w, int c) {
     g[fr].push_back({fr, to, w, 0, c, (int) g[to].size()});
-    g[to].push_back({to, fr, -w, 0, 0, (int) g[fr].size()});
+    g[to].push_back({to, fr, -w, 0, 0, (int) g[fr].size() - 1});
   }
   void ae2(int fr, int to, int w, int c) {
     g[fr].push_back({fr, to, w, 0, c, (int) g[to].size()});
-    g[to].push_back({to, fr, -w, -c, 0, (int) g[fr].size()});
+    g[to].push_back({to, fr, -w, -c, 0, (int) g[fr].size() - 1});
   }
   void add_edge(int fr, int to, int w, int c, int rev = 0) {
     if (fr == -1) fr = S;
