@@ -1,7 +1,7 @@
 /***********************************************
 
      Min cost max flow by Kazalika
-     -O(n^3 m)
+     -O(n^2 m log m)
      -Dijkstra algorithm
      
      !  I don't recommend this algorithm     !
