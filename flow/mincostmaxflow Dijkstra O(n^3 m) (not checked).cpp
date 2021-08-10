@@ -22,14 +22,8 @@ struct mcmf {
   bool nupd;
 
   mcmf() : size(0), cur_flow(0), cur_cost(0), nupd(false) {}
-  explicit mcmf(vector<vector<edge>> &g_) : g(g_), size(g_.size()), cur_flow(0), cur_cost(0), nupd(false) {
-    size += 2;
-    g.resize(size + 2);
-    S = size_, T = size_ + 1;
-  }
-  explicit mcmf(int size_) : size(size_ + 2), g(vector<vector<edge>>(size_ + 2)), cur_flow(0), cur_cost(0), nupd(false) {    
-    S = size_, T = size_ + 1; 
-  }
+  explicit mcmf(int size_) : size(size_ + 2), cur_flow(0), cur_cost(0), nupd(false), S(size_), T(size_ + 1) {}
+   
 
   void ae1(int fr, int to, int w, int c) {
     g[fr].push_back({fr, to, w, 0, c, (int) g[to].size()});
