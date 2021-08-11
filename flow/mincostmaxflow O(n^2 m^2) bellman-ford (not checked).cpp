@@ -28,7 +28,7 @@ struct mcmf {
     e.push_back({fr, to, w, 0, c, sz(e) + 1}), e.push_back({to, fr, -w, 0, 0, sz(e) - 1});
     g[fr].push_back(sz(e) - 2), g[to].push_back(sz(e) - 1);
   }
-  pair<int, int> get() {
+  pair<ll, ll> get() {
     while (true) {
       vector<int> d(V, inf), p(V, -1);
       d[S] = 0;
