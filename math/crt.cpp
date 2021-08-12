@@ -1,6 +1,9 @@
+#include <bits/stdc++.h>
+using namespace std;
+
 const int undef = 134655431;
 
-template <typename T>                      // Euclidean algorithm
+template <typename T>                      // Euclidean algorithm (a, b) = (a - b, b) = (a % b, b)
 T gcd(T a, T b) { return (b ? gcd(b, a % b) : a); }
 
 template <typename T>                      // [a, b] = a * b / (a, b)
@@ -40,4 +43,8 @@ T CRT(T a, T m1, T b, T m2) {              // x % m1 = a, x % m2 = b
   T t = lcm(m1, m2), x = (a + f * m1) % t; // t - period, x - answer
   if (x < 0) x += t;
   return x;
+}
+
+int main() {
+
 }
