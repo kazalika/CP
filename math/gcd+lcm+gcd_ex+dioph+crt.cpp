@@ -44,7 +44,3 @@ T CRT(T a, T m1, T b, T m2) {              // x % m1 = a, x % m2 = b
   if (x < 0) x += t;
   return x;
 }
-
-int main() {
-
-}
