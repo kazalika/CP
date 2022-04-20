@@ -12,7 +12,7 @@ const ll INF = 1e15;
 #define sz(x) (int)(x).size()
 
 struct edge {
-  int fr, to; ll co, f, c; int lk, id; // from, to, cost, flow, capacity, back_link
+  int fr, to; ll co, f, c; int lk, id; // from, to, cost, flow, capacity, back_link, edge_index
 };
 struct mcmf {
   int V, S, T;                     // num of vertexes, source = V-2, target = V-1
@@ -23,8 +23,8 @@ struct mcmf {
   mcmf(int V_) : V(V_ + 2), fl(0), co(0), S(V_), T(V_ + 1), g(vector<vector<int>>(V_ + 2)) {}
   mcmf(int V_, int S_, int T_) : V(V_), fl(0), co(0), S(S_), T(T_), g(vector<vector<int>>(V_)) {}
 
-  //             from     to    cost  capacity
-  void add_edge(int fr, int to, ll cs, ll c, int id) {       // fr = -1 => fr = S, to = -1 => to = T
+  //             from     to    cost  capacity  edge_index
+  void add_edge(int fr, int to, ll cs, ll c, int id = 0) {       // fr = -1 => fr = S, to = -1 => to = T
     if (fr == -1) fr = S;
     if (to == -1) to = T;
     e.push_back({fr, to, cs, 0, c, sz(e) + 1, id});
